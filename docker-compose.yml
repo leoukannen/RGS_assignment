@@ -3,7 +3,8 @@ services:
     build: .
     container_name: app
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./python-docker-src:/app
     environment:
@@ -16,6 +17,12 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep -q 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
 volumes:
   mongodb_data:

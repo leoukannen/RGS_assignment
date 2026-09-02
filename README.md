@@ -31,3 +31,5 @@ is responsible for:
 
 * Looking up within the downloaded fest.xml the data to be persisted in the table created by  `defineMoleculeDetailsTable.py`
 
+## `General notes`
+The database container remains running indefinately after make. There isn't a real need for that beyond being able to query it. Querying it occurs at any point and is required for producing output.csv as well as the 5 visualizations, could be set up to close cleanly after those 6 files are made.
