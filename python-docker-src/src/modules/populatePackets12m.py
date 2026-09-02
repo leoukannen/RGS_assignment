@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+import os
+from pathlib import Path
+import time
 from typing import Any, cast
 
 import requests
@@ -13,6 +17,12 @@ FHI_SOURCE_ID = "gs"
 FHI_TABLE_TITLE = "Grossistbasert legemiddelstatistikk"
 FHI_SOURCE_URL = "https://statistikk-data.fhi.no/swagger/index.html"
 YEARS_BACK_TO_REQUEST = 3
+REQUEST_DELAY_SECONDS = 1
+MAX_RETRIES_PER_ENDPOINT = 5
+MAX_BACKOFF_SECONDS = 10
+WARNINGS_LOG_PATH = Path(
+	os.getenv("WARNINGS_LOG_PATH", "/app/data/errors/warnings.log")
+)
 
 
 def populate_packets_12m(
@@ -162,11 +172,10 @@ def _query(
 		],
 		"response": {"format": "json-stat2", "maxRowCount": 10000},
 	}
-	response = requests.post(
-		f"{FHI_API_ROOT}/{FHI_SOURCE_ID}/Table/{table_id}/data",
+	response = _request(
+		"POST",
+		f"{FHI_SOURCE_ID}/Table/{table_id}/data",
 		json=payload,
-		headers={"User-Agent": "assignmentCGS/1.0 (FHI data collection)"},
-		timeout=60,
 	)
 	response.raise_for_status()
 	result = response.json()
@@ -201,10 +210,59 @@ def _coordinates(index: int, atc_values: list[str], year_values: list[str]) -> t
 
 
 def _get(path: str) -> Any:
-	response = requests.get(
-		f"{FHI_API_ROOT}{path}",
-		headers={"User-Agent": "assignmentCGS/1.0 (FHI data collection)"},
-		timeout=60,
-	)
+	response = _request("GET", path)
 	response.raise_for_status()
 	return response.json()
+
+
+def _request(method: str, path: str, **kwargs: Any) -> requests.Response:
+	url = f"{FHI_API_ROOT}{path if path.startswith('/') else f'/{path}'}"
+	kwargs.setdefault("headers", {"User-Agent": "assignmentCGS/1.0 (FHI data collection)"})
+	kwargs.setdefault("timeout", 60)
+	last_error: Exception | None = None
+
+	for attempt in range(MAX_RETRIES_PER_ENDPOINT + 1):
+		time.sleep(REQUEST_DELAY_SECONDS)
+		try:
+			response = requests.request(method, url, **kwargs)
+			if not _retryable_status(response.status_code):
+				return response
+			last_error = requests.HTTPError(
+				f"retryable HTTP status {response.status_code}", response=response
+			)
+		except (requests.Timeout, requests.ConnectionError) as error:
+			last_error = error
+
+		if attempt < MAX_RETRIES_PER_ENDPOINT:
+			time.sleep(min(REQUEST_DELAY_SECONDS * (2**attempt), MAX_BACKOFF_SECONDS))
+
+	message = _warning_message(method, url, last_error)
+	print(message, flush=True)
+	_write_warning(message)
+	if last_error is not None:
+		raise last_error
+	raise RuntimeError(f"FHI request failed: {method} {url}")
+
+
+def _retryable_status(status_code: int) -> bool:
+	return status_code == 429 or status_code >= 500
+
+
+def _warning_message(method: str, url: str, error: Exception | None) -> str:
+	timestamp = datetime.now(timezone.utc).isoformat()
+	return (
+		"\n"
+		"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+		f"WARNING: FHI endpoint failed after {MAX_RETRIES_PER_ENDPOINT} retries\n"
+		f"Time: {timestamp}\n"
+		f"Request: {method} {url}\n"
+		f"Error: {error}\n"
+		"The endpoint was skipped after reaching its retry limit.\n"
+		"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	)
+
+
+def _write_warning(message: str) -> None:
+	WARNINGS_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+	with WARNINGS_LOG_PATH.open("a", encoding="utf-8") as log_file:
+		log_file.write(f"{message}\n")
