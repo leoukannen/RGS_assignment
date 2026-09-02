@@ -43,12 +43,20 @@ def define_molecule_details_table(
 		"$jsonSchema": {
 			"bsonType": "object",
 			"properties": {
-				field: {"bsonType": bson_type}
-				for field, bson_type in {
-					**{field: ["string", "null"] for field in MOLECULE_DETAILS_FIELDS},
-					"moleculeDetected": ["bool", "null"],
-				}.items()
-			},
+				**{
+					field: {"bsonType": ["string", "null"]}
+					for field in MOLECULE_DETAILS_FIELDS
+				},
+				"moleculeDetected": {"bsonType": ["bool", "null"]},
+				"sourceDocument": {
+					"bsonType": ["array", "null"],
+					"items": {"bsonType": "string"},
+				},
+				"sourceUrl": {
+					"bsonType": ["array", "null"],
+					"items": {"bsonType": "string"},
+				},
+			}
 		}
 	}
 

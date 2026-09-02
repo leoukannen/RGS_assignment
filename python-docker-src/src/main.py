@@ -1,6 +1,8 @@
 from modules.procureLatestFest import download_latest_fest
+from modules.procureLatestDMP import download_latest_dmp
 from modules.defineMoleculeDetailsTable import define_molecule_details_table
 from modules.populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
+from modules.populateMoleculeWithDMP import populate_molecule_with_dmp
 from typing import Any
 from pymongo import  MongoClient
 import os
@@ -28,8 +30,10 @@ def main() -> None:
 	client = get_database()
 	try:
 		download_latest_fest()
+		download_latest_dmp()
 		define_molecule_details_table(client)
 		populate_molecule_details_with_fest(client)
+		populate_molecule_with_dmp(client)
 	finally:
 		client.close()
 
