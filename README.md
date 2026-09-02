@@ -1,10 +1,19 @@
-Docker containers are used by all resources (Selenium, MongoDB). This is in the interest of minimizing requirements on the host machine; if it has docker, it can run the solution.
+## Docker Containers
 
+Docker containers are used for all resources, including:
 
-Wikipedia.py is used to:
-    Imports desired from input_molecules.py
-    Fetches Wikipedia data for all five molecules
-    Extracts ATC codes
-    Stores Table B documents in app.molecules
-    Creates a unique productMolecule index
-    Handles Wikipedia rate limits
+* Selenium
+* MongoDB
+
+This minimizes the requirements on the host machine. If the host has **Docker**, it can run the complete solution.
+
+## `Wikipedia.py`
+
+`Wikipedia.py` is responsible for:
+
+* Importing the desired molecules from `input_molecules.py`
+* Fetching Wikipedia data for all five molecules
+* Extracting ATC codes
+* Storing **Table B** documents in `app.molecules`
+* Creating a unique `productMolecule` index
+

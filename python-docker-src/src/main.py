@@ -1,49 +1,37 @@
+from modules.procureLatestFest import download_latest_fest
+from defineMoleculeDetailsTable import define_molecule_details_table
+from populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
+from typing import Any
+from pymongo import  MongoClient
 import os
 import time
 
-from pymongo import ASCENDING, MongoClient
+def get_database() -> MongoClient[dict[str, Any]]:
+	mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/app")
+	client: MongoClient[dict[str, Any]] = MongoClient(
+		mongo_uri, serverSelectionTimeoutMS=2000
+	)
 
-from input_molecules import desired
-from modules.wikipedia import fetch_molecule
+	for attempt in range(15):
+		try:
+			client.admin.command("ping")
+			return client
+		except Exception:
+			if attempt == 14:
+				client.close()
+				raise
+			time.sleep(2)
 
-
-def get_database() -> MongoClient[dict[str,object]]:
-    mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/app")
-    client: MongoClient[dict[str, object]] = MongoClient(
-    mongo_uri
-    )
-
-    for attempt in range(15):
-        try:
-            client.admin.command("ping")
-            return client
-        except Exception:
-            if attempt == 14:
-                client.close()
-                raise
-            time.sleep(2)
-
-    raise RuntimeError("MongoDB did not become available")
-
+	raise RuntimeError("MongoDB did not become available")
 
 def main() -> None:
-    client = get_database()
-    try:
-        database = client.get_default_database()
-        collection = database["molecules"]
-        collection.create_index([("productMolecule", ASCENDING)], unique=True)
-
-        for molecule in desired:
-            document = fetch_molecule(molecule)
-            collection.replace_one(
-                {"productMolecule": document["productMolecule"]},
-                document,
-                upsert=True,
-            )
-            print(f"Stored {document['productMolecule']}: {len(document['atcCodes'])} ATC code(s)")
-    finally:
-        client.close()
-
+	client = get_database()
+	try:
+		download_latest_fest()
+		define_molecule_details_table(client)
+		populate_molecule_details_with_fest(client)
+	finally:
+		client.close()
 
 if __name__ == "__main__":
     main()
