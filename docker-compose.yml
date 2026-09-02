@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    container_name: app
+    depends_on:
+      - mongodb
+    volumes:
+      - ./python-docker-src:/app
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/app
+    command: python src/main.py
+
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
