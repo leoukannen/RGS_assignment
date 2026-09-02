@@ -1,4 +1,4 @@
-.PHONY: all build up down clean
+.PHONY: all build up down clean make-dev-env
 
 all: up
 
@@ -10,6 +10,10 @@ up:
 
 down:
 	docker compose down
+
+make-dev-env:
+	python3 -m venv .venv
+	.venv/bin/python -m pip install -r python-docker-src/requirements.txt
 
 inspect-containers:
 	docker compose logs -f

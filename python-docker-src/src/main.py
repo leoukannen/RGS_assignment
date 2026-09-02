@@ -7,9 +7,11 @@ from input_molecules import desired
 from modules.wikipedia import fetch_molecule
 
 
-def get_database() -> MongoClient:
+def get_database() -> MongoClient[dict[str,object]]:
     mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/app")
-    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=2000)
+    client: MongoClient[dict[str, object]] = MongoClient(
+    mongo_uri
+    )
 
     for attempt in range(15):
         try:
@@ -45,5 +47,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-while True:
-    pass

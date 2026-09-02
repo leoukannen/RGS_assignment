@@ -19,6 +19,7 @@ def fetch_molecule(molecule: str) -> dict[str, Any]:
 		"redirects": "1",
 	}
 	headers = {"User-Agent": "assignmentCGS/1.0 (Wikipedia data collection)"}
+	response: requests.Response | None = None
 	for attempt in range(3):
 		response = requests.get(
 			WIKIPEDIA_API_URL, params=params, headers=headers, timeout=20
@@ -27,6 +28,7 @@ def fetch_molecule(molecule: str) -> dict[str, Any]:
 			break
 		retry_after = int(response.headers.get("Retry-After", "2"))
 		time.sleep(min(retry_after, 10))
+	assert response is not None
 	response.raise_for_status()
 	payload = response.json()
 
@@ -47,14 +49,14 @@ def fetch_molecule(molecule: str) -> dict[str, Any]:
 
 
 def _atc_codes(wikitext: str) -> list[str]:
-	fields = dict(
+	fields: dict[str, str] = dict(
 		re.findall(
 			r"^\s*\|\s*(ATC_(?:prefix|suffix|supplemental))\s*=\s*(.*?)\s*$",
 			wikitext,
 			flags=re.MULTILINE | re.IGNORECASE,
 		)
 	)
-	codes = []
+	codes: list[str] = []
 	prefix = fields.get("ATC_prefix", "")
 	suffix = fields.get("ATC_suffix", "")
 	codes.extend(ATC_CODE_PATTERN.findall(prefix + suffix))
