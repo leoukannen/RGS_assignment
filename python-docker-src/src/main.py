@@ -1,6 +1,6 @@
 from modules.procureLatestFest import download_latest_fest
-from defineMoleculeDetailsTable import define_molecule_details_table
-from populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
+from modules.defineMoleculeDetailsTable import define_molecule_details_table
+from modules.populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
 from typing import Any
 from pymongo import  MongoClient
 import os

@@ -6,8 +6,8 @@ from xml.etree.ElementTree import Element, iterparse
 
 from pymongo import MongoClient
 
-from defineMoleculeDetailsTable import MOLECULE_DETAILS_COLLECTION
-from input_molecules import desired
+from modules.defineMoleculeDetailsTable import MOLECULE_DETAILS_COLLECTION
+from modules.input_molecules import desired
 
 
 FEST_XML_PATH = Path("/app/data/fest/fest.xml")
