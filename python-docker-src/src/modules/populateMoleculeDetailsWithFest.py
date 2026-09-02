@@ -157,6 +157,7 @@ def _package_document(package: dict[str, str | None], brand: dict[str, Any]) -> 
 		"publicationDate": package["market_date"],
 		"contractStart": None,
 		"procedureType": None,
+		"consumptionData": [],
 		"sourceDocument": ["FEST 2.5.1 XML"],
 		"sourceUrl": [FEST_SOURCE_URL],
 	}

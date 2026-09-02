@@ -29,6 +29,7 @@ MOLECULE_DETAILS_FIELDS = (
 	"publicationDate",
 	"contractStart",
 	"procedureType",
+	"consumptionData",
 	"sourceDocument",
 	"sourceUrl",
 )
@@ -55,6 +56,21 @@ def define_molecule_details_table(
 				"sourceUrl": {
 					"bsonType": ["array", "null"],
 					"items": {"bsonType": "string"},
+				},
+				"consumptionData": {
+					"bsonType": ["array", "null"],
+					"items": {
+						"bsonType": "object",
+						"properties": {
+							"year": {"bsonType": "string"},
+							"atcCode": {"bsonType": "string"},
+							"measure": {"bsonType": "string"},
+							"value": {"bsonType": ["double", "int", "long", "string", "null"]},
+							"packetsSold": {"bsonType": ["double", "int", "long", "string", "null"]},
+							"unit": {"bsonType": ["string", "null"]},
+							"periodBasis": {"bsonType": "string"},
+						},
+					},
 				},
 			}
 		}
