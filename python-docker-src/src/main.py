@@ -4,6 +4,7 @@ from modules.defineMoleculeDetailsTable import define_molecule_details_table
 from modules.populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
 from modules.populateMoleculeWithDMP import populate_molecule_with_dmp
 from modules.populatePackets12m import populate_packets_12m
+from export_outputs import read_rows, write_visualizations
 from typing import Any
 from pymongo import  MongoClient
 import os
@@ -36,6 +37,7 @@ def main() -> None:
 		populate_molecule_details_with_fest(client)
 		populate_molecule_with_dmp(client)
 		populate_packets_12m(client)
+		write_visualizations(read_rows(client))
 	finally:
 		client.close()
 
