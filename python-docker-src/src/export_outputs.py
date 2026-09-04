@@ -102,6 +102,17 @@ def numeric_value(value: Any) -> float | None:
 	return numeric_price(value)
 
 
+def units_per_pack(pack_size: Any) -> float | None:
+	"""Parse the leading package quantity from values such as ``21 x 1``."""
+	if pack_size is None:
+		return None
+	match = re.search(r"\d+(?:[.,]\d+)?", str(pack_size))
+	if match is None:
+		return None
+	units = float(match.group(0).replace(",", "."))
+	return units if units > 0 else None
+
+
 def write_consumption_visualization(
 	molecule: str,
 	rows: list[dict[str, Any]],
@@ -158,10 +169,11 @@ def write_visualizations(rows: list[dict[str, Any]]) -> None:
 				continue
 			strength = milligrams(row.get("strength"))
 			price = numeric_price(row.get("maxPrice"))
-			if strength is None or strength <= 0 or price is None:
+			pack_units = units_per_pack(row.get("packSize"))
+			if strength is None or strength <= 0 or price is None or pack_units is None:
 				continue
 			label = str(row.get("itemNumber") or row.get("productName") or "unknown")
-			points.append((strength, price, label, price / strength))
+			points.append((strength, price, label, price / (strength * pack_units)))
 		points.sort(key=lambda point: point[0])
 		figure, axis = cast(tuple[Any, Any], plt.subplots(figsize=(8, 5))) # type: ignore
 		if points:

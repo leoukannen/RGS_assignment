@@ -9,10 +9,9 @@ up:
 	docker compose up --build -d
 
 wait-for-app:
-	@echo "Waiting for container 'app' to produce output files, then stopping 'mongodb' container"; 
-	@while docker ps --filter "name=^app$$" --filter "status=running" --format "{{.Names}}" | grep -qx "app"; do \
-		sleep 1; \
-	done
+	@code=$$(docker wait app); \
+	docker logs --tail 50 app; \
+	test "$$code" = "0" || { echo "app exited $$code"; exit "$$code"; }
 
 down:
 	docker compose down
