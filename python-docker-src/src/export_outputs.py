@@ -191,7 +191,7 @@ def write_visualizations(rows: list[dict[str, Any]]) -> None:
 				)
 		else:
 			axis.text(0.5, 0.5, "No price data", ha="center", va="center", transform=axis.transAxes)
-		axis.set_title(f"{molecule}: maxPrice(FEST) by strength")
+		axis.set_title(f"{molecule}: maxPrice(DMT) by strength")
 		axis.set_xlabel("Strength (mg)")
 		axis.set_ylabel("Price (NOK)")
 		axis.legend()
