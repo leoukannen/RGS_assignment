@@ -96,23 +96,49 @@ def numeric_price(value: Any) -> float | None:
 def write_visualizations(rows: list[dict[str, Any]]) -> None:
 	OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
 	for molecule in desired:
-		points = [
-			(milligrams(row.get("strength")), numeric_price(row.get("maxPrice")))
-			for row in rows
-			if str(row.get("productMolecule", "")).casefold() == molecule.casefold()
-		]
-		points = sorted(
-			[(strength, price) for strength, price in points if strength is not None and price is not None]
-		)
+		points: list[tuple[float, float, str, float]] = []
+		for row in rows:
+			if str(row.get("productMolecule", "")).casefold() != molecule.casefold():
+				continue
+			strength = milligrams(row.get("strength"))
+			price = numeric_price(row.get("maxPrice"))
+			if strength is None or strength <= 0 or price is None:
+				continue
+			label = str(row.get("itemNumber") or row.get("productName") or "unknown")
+			points.append((strength, price, label, price / strength))
+		points.sort(key=lambda point: point[0])
 		figure, axis = cast(tuple[Any, Any], plt.subplots(figsize=(8, 5))) # type: ignore
 		if points:
-			x_values, y_values = zip(*points)
-			axis.plot(x_values, y_values, marker="o")
+			x_values = [point[0] for point in points]
+			prices = [point[1] for point in points]
+			normalized_prices = [point[3] for point in points]
+			axis.plot(x_values, prices, marker="o", label="Maximum price")
+			axis.plot(
+				x_values,
+				normalized_prices,
+				marker="o",
+				label="Price per mg",
+			)
+			for index, (strength, price, label, normalized_price) in enumerate(points):
+				vertical_offset = (index % 4) * 12
+				axis.annotate(
+					label,
+					(strength, price),
+					xytext=(4, 8 + vertical_offset),
+					textcoords="offset points",
+				)
+				axis.annotate(
+					label,
+					(strength, normalized_price),
+					xytext=(4, -16 - vertical_offset),
+					textcoords="offset points",
+				)
 		else:
 			axis.text(0.5, 0.5, "No price data", ha="center", va="center", transform=axis.transAxes)
-		axis.set_title(f"{molecule}: maximum price by strength")
+		axis.set_title(f"{molecule}: price by strength")
 		axis.set_xlabel("Strength (mg)")
-		axis.set_ylabel("Maximum price")
+		axis.set_ylabel("Price (NOK)")
+		axis.legend()
 		axis.grid(True, alpha=0.3)
 		figure.tight_layout()
 		figure.savefig(str(OUTPUT_DIRECTORY / f"{molecule}.png"), dpi=150)
