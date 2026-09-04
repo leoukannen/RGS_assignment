@@ -3,8 +3,8 @@ from modules.procureLatestDMP import download_latest_dmp
 from modules.defineMoleculeDetailsTable import define_molecule_details_table
 from modules.populateMoleculeDetailsWithFest import populate_molecule_details_with_fest
 from modules.populateMoleculeWithDMP import populate_molecule_with_dmp
-from modules.populatePackets12m import populate_packets_12m
-from export_outputs import read_rows, write_visualizations
+from modules.populateConsumptionData import populate_consumption_data
+from export_outputs import read_rows, write_csv, write_visualizations
 from typing import Any
 from pymongo import  MongoClient
 import os
@@ -36,8 +36,10 @@ def main() -> None:
 		define_molecule_details_table(client)
 		populate_molecule_details_with_fest(client)
 		populate_molecule_with_dmp(client)
-		populate_packets_12m(client)
-		write_visualizations(read_rows(client))
+		populate_consumption_data(client)
+		rows = read_rows(client)
+		write_csv(rows)
+		write_visualizations(rows)
 	finally:
 		client.close()
 

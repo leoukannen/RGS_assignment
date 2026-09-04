@@ -25,10 +25,10 @@ WARNINGS_LOG_PATH = Path(
 )
 
 
-def populate_packets_12m(
+def populate_consumption_data(
 	client: MongoClient[dict[str, Any]],
 	) -> int:
-	"""Add the latest available yearly GS sales measure to Table A records."""
+	"""Add the latest available yearly GS sales measure to moleculeDetails records."""
 	collection = client.get_default_database()[MOLECULE_DETAILS_COLLECTION]
 	atc_codes = sorted(
 		{

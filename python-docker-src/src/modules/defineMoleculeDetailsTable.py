@@ -38,7 +38,7 @@ MOLECULE_DETAILS_FIELDS = (
 def define_molecule_details_table(
 	client: MongoClient[dict[str, Any]],
 ) -> None:
-	"""Create or update the Table A-shaped MongoDB collection."""
+	"""Create or update the moleculeDetails-shaped MongoDB collection."""
 	database = client.get_default_database()
 	validator :dict[str, Any] = {
 		"$jsonSchema": {

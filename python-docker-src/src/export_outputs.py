@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import csv
 import json
 import os
@@ -68,7 +67,7 @@ def write_csv(rows: list[dict[str, Any]]) -> None:
 		writer.writeheader()
 		for row in rows:
 			writer.writerow({field: csv_value(row.get(field)) for field in fields})
-	print(f"Wrote {len(rows)} Table A row(s) to {CSV_PATH}")
+	print(f"Wrote {len(rows)} moleculeDetails row(s) to {CSV_PATH}")
 
 
 def milligrams(strength: Any) -> float | None:
@@ -91,6 +90,59 @@ def numeric_price(value: Any) -> float | None:
 		return None
 	match = re.search(r"\d+(?:[.,]\d+)?", str(value).replace(" ", ""))
 	return float(match.group(0).replace(",", ".")) if match else None
+
+
+def numeric_value(value: Any) -> float | None:
+	if isinstance(value, (int, float)) and not isinstance(value, bool):
+		return float(value)
+	return numeric_price(value)
+
+
+def write_consumption_visualization(
+	molecule: str,
+	rows: list[dict[str, Any]],
+) -> None:
+	unique_entries: set[tuple[str, str, float, str]] = set()
+	for row in rows:
+		if str(row.get("productMolecule", "")).casefold() != molecule.casefold():
+			continue
+		consumption_data = row.get("consumptionData")
+		if not isinstance(consumption_data, list):
+			continue
+		consumption_data = cast(list[Any], consumption_data)
+		for entry in consumption_data:
+			if not isinstance(entry, dict):
+				continue
+			entry = cast(dict[str, Any], entry)
+			year = str(entry.get("year", "")).strip()
+			atc_code = str(entry.get("atcCode", "")).strip()
+			value = numeric_value(entry.get("value"))
+			unit = str(entry.get("unit") or entry.get("measure") or "").strip()
+			if year and atc_code and value is not None:
+				unique_entries.add((year, atc_code, value, unit))
+
+	by_year: dict[str, float] = {}
+	units: set[str] = set()
+	for year, _, value, unit in unique_entries:
+		by_year[year] = by_year.get(year, 0) + value
+		if unit:
+			units.add(unit)
+
+	figure, axis = cast(tuple[Any, Any], plt.subplots(figsize=(8, 5))) # type: ignore
+	if by_year:
+		years = sorted(by_year)
+		axis.plot(years, [by_year[year] for year in years], marker="o")
+	else:
+		axis.text(0.5, 0.5, "No consumption data", ha="center", va="center", transform=axis.transAxes)
+	unit_label = ", ".join(sorted(units)) or "unknown unit"
+	axis.set_title(f"{molecule}: yearly consumption ({unit_label})")
+	axis.set_xlabel("Year")
+	axis.set_ylabel(f"Consumption ({unit_label})")
+	axis.grid(True, alpha=0.3)
+	figure.tight_layout()
+	figure.savefig(str(OUTPUT_DIRECTORY / f"{molecule}-consumption.png"), dpi=150)
+	plt.close(figure) # type: ignore
+	print(f"Wrote consumption visualization for {molecule}")
 
 
 def write_visualizations(rows: list[dict[str, Any]]) -> None:
@@ -144,23 +196,17 @@ def write_visualizations(rows: list[dict[str, Any]]) -> None:
 		figure.savefig(str(OUTPUT_DIRECTORY / f"{molecule}.png"), dpi=150)
 		plt.close(figure) # type: ignore
 		print(f"Wrote visualization for {molecule}")
+		write_consumption_visualization(molecule, rows)
 
 
 def main() -> None:
-	parser = argparse.ArgumentParser()
-	mode = parser.add_mutually_exclusive_group(required=True)
-	mode.add_argument("--csv-only", action="store_true")
-	mode.add_argument("--visualization-only", action="store_true")
-	args = parser.parse_args()
 	client = get_database()
 	try:
 		rows = read_rows(client)
 	finally:
 		client.close()
-	if args.csv_only:
-		write_csv(rows)
-	else:
-		write_visualizations(rows)
+	write_csv(rows)
+	write_visualizations(rows)
 
 
 if __name__ == "__main__":

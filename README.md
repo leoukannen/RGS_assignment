@@ -1,35 +1,85 @@
-## Docker Containers
+# General
+## `Docker Containers`
 
 Docker containers are used for all (2) resources, including:
 
-* Python executions
-* MongoDB
+* app -- Runs python
+* MongoDB -- You didn't require a database but it convenient.
 
 Why docker: to minimize requirements on the host machine. If the host has **Docker**, it can run the complete solution.
 
+## `How to run`
+* run `docker compose up --build -d` at the project root (where Makefile is)
+* `make` is also available, but most targets are shorthand for `docker` and its arguments
+* when finished (output.csv and *.png present), run `docker compose down` or `make down`; did not implement auto-closing of the mongoDB container
+
+## `Role of AI assisted development`
+* ChatGPT was used instead of google.com, to find sources and better understand chemical/molecule data and how to best search for these rather than their given 5 names.
+* GPT 5.6 Luna: used it very generously, barely wrote anything myself, most of the time I spent on researching.
+
 ## `General notes`
-* The database container remains running indefinately after make. There isn't a real need for that beyond being able to query it. Querying it occurs at any point and is required for producing output.csv as well as the 5 visualizations, could be set up to close cleanly after those 6 files are made.
+* There's an extra field called consumptionData which wasn't asked for in the assignment; [molecule]-consumption.png plots it.
+* Wasn't really able to procure actual tenders, actual prices, or volume in the last 12 months.
+
+## Finding Sources
+* Lots of back-and-forth with ChatGPT. 5 years ago that would've been a lot of googling.
+* Three sources are used
+* - [FEST](https://www.dmp.no/globalassets/documents/om-oss/distribusjon-av-legemiddeldata/fest/festfiler/fest251.zip) - see [Caching](#caching)
+* - [DMP maximum prices](https://www.dmp.no/offentlig-finansiering/pris-pa-legemidler/maksimalpris)
+* - statistikk-data.fhi for the (extra/unrequested) yearly consumption data
+
+## `Trashed approaches`
+* Initially was curling wikipedia to get atcCodes, before realizing FEST (https://www.dmp.no/globalassets/documents/om-oss/distribusjon-av-legemiddeldata/fest/festfiler/fest251.zip) is a much better source for those. This is not very visible in the git log because I had at some point attempted to upload a large file (fest.xml) and I had to get aggressive with the git history.
+
+## `Skipped`
+* Procuring real tenders, real volume and real prices, because I wasn't really able to find reliable sources for them, and a large amount of time had already been spent finding those resources
+
+## `Duplication handling`
+* Because no sources, single or multiple, were found for the distinct steps of furnishing the data, I did not have to deal with duplicates.
+
+## `Recommendations/what I would do next`
+* I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m.
+
+## Caching
+* Realistically FEST is refreshed twice a month, this implementation pulls fest.xml and maximum-prices.xlsx no more than once per 24 hours. For a real implementation I would submit to notices of update for both these sources, parsing of these notifications, and redownload of sources.
+
+
+# About each module/.py
+
+Each Python file has a focused role in the pipeline:
 
 ## `input_molecules.py`
 
-is responsible for:
-
-* Defining the molecules to be searched
+Defines the molecule names used by the search and enrichment pipeline.
 
 ## `defineMoleculeDetailsTable.py`
 
-is responsible for:
-
-* Defining the table to be populated
+Defines Table A field names and the MongoDB schema validator.
 
 ## `procureLatestFest.py`
 
-is responsible for:
+Downloads and caches the latest FEST XML source.
 
-* Downloading fest.xml, no more than once per day. (This would be improved with a subscription to the maintainers, which may agree to inform whenever the file changes.)
+## `procureLatestDMP.py`
+
+Downloads and caches the DMP maximum-price workbook.
 
 ## `populateMoleculeDetailsWithFest.py`
 
-is responsible for:
+Reads FEST XML and creates molecule product rows in MongoDB.
 
-* Looking up within the downloaded fest.xml the data to be persisted in the table created by  `defineMoleculeDetailsTable.py`
+## `populateMoleculeWithDMP.py`
+
+Matches products to DMP data and fills maximum price and product fields.
+
+## `populateConsumptionData.py`
+
+Fetches yearly FHI consumption data and stores it in `consumptionData`.
+
+## `main.py`
+
+Runs the full pipeline and always writes the CSV and chart outputs.
+
+## `export_outputs.py`
+
+Exports Table A to CSV and creates price and consumption charts.

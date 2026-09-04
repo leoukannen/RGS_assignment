@@ -23,7 +23,7 @@ def populate_molecule_with_dmp(
 	client: MongoClient[dict[str, Any]],
 	workbook_path: Path = DMP_WORKBOOK_PATH,
 ) -> int:
-	"""Fill null Table A fields with matching DMP maximum-price data."""
+	"""Fill null moleculeDetails fields with matching DMP maximum-price data."""
 	price_rows = _read_price_rows(workbook_path)
 	collection = client.get_default_database()[MOLECULE_DETAILS_COLLECTION]
 	updated = 0

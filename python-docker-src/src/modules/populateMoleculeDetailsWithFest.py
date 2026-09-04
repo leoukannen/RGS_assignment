@@ -21,7 +21,7 @@ def populate_molecule_details_with_fest(
 	client: MongoClient[dict[str, Any]],
 	fest_xml_path: Path = FEST_XML_PATH,
 ) -> int:
-	"""Populate Table A from FEST packages matching the configured molecules."""
+	"""Populate moleculeDetails from FEST packages matching the configured molecules."""
 	desired_names = {name.casefold() for name in desired}
 	strengths = _read_strengths(fest_xml_path)
 	brands = _read_brands(fest_xml_path, strengths, desired_names)

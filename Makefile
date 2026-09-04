@@ -1,4 +1,4 @@
-.PHONY: all build up down clean make-dev-env output-files output-csv output-visualization wait-for-app
+.PHONY: all build up down clean make-dev-env
 
 all: up
 
@@ -28,16 +28,8 @@ peek-database: checkmongoalive
 full-clean-remove-volumes:
 	docker compose down -v
 
-wait-for-app:
-	@while docker ps --filter "name=^app$$" --filter "status=running" --format "{{.Names}}" | grep -qx "app"; do \
-		echo "Waiting for container 'app' to stop..."; \
-		sleep 2; \
-	done
 
-output-files: output-csv output-visualization
 
-output-csv: wait-for-app
-	docker compose run --rm --no-deps app python src/export_outputs.py --csv-only
 
-output-visualization: wait-for-app
-	@echo "Visualizations are generated automatically by app when it runs."
+
+
