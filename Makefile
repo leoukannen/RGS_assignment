@@ -1,12 +1,18 @@
-.PHONY: all build up down clean make-dev-env
+.PHONY: all build up down wait-for-app clean make-dev-env
 
-all: up
+all: up wait-for-app down
 
 build:
 	docker compose build
 
 up:
 	docker compose up --build -d
+
+wait-for-app:
+	@echo "Waiting for container 'app' to produce output files, then stopping 'mongodb' container"; 
+	@while docker ps --filter "name=^app$$" --filter "status=running" --format "{{.Names}}" | grep -qx "app"; do \
+		sleep 1; \
+	done
 
 down:
 	docker compose down

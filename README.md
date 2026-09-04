@@ -4,14 +4,16 @@
 Docker containers are used for all (2) resources, including:
 
 * app -- Runs python
-* MongoDB -- You didn't require a database but it convenient.
+* MongoDB -- You didn't require a database but I found it convenient.
 
 Why docker: to minimize requirements on the host machine. If the host has **Docker**, it can run the complete solution.
 
 ## `How to run`
+### With make
+* run 'make'; the 'app' container will be watched, and when it closes, mongodb will be closed
+### Without make
 * run `docker compose up --build -d` at the project root (where Makefile is)
-* `make` is also available, but most targets are shorthand for `docker` and its arguments
-* when finished (output.csv and *.png present), run `docker compose down` or `make down`; did not implement auto-closing of the mongoDB container
+* when finished (output.csv and *.png present, 'app' container closed), run `docker compose down` or `make down`
 
 ## `Role of AI assisted development`
 * ChatGPT was used instead of google.com, to find sources and better understand chemical/molecule data and how to best search for these rather than their given 5 names.
@@ -38,13 +40,12 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 * Because no sources, single or multiple, were found for the distinct steps of furnishing the data, I did not have to deal with duplicates.
 
 ## `Recommendations/what I would do next`
-* I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m.
+* I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m, finding sources is the hardest part.
 
-## Caching
-* Realistically FEST is refreshed twice a month, this implementation pulls fest.xml and maximum-prices.xlsx no more than once per 24 hours. For a real implementation I would submit to notices of update for both these sources, parsing of these notifications, and redownload of sources.
+## Cacheing
+* Realistically FEST is refreshed twice a month, this implementation pulls fest.xml and maximum-prices.xlsx no more than once per 24 hours. For a real implementation I would submit to notices of update for both these sources (or at the very least download fest.xml on the 1st and 15th of every month).
 
-
-# About each module/.py
+# About each python-docker-src/modules/.py
 
 Each Python file has a focused role in the pipeline:
 
