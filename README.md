@@ -17,7 +17,7 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 
 ## `Role of AI assisted development`
 * ChatGPT was used instead of google.com, to find sources and better understand chemical/molecule data and how to best search for these rather than their given 5 names.
-* GPT 5.6 Luna: used it very generously, barely wrote anything myself, most of the time I spent on researching.
+* GPT 5.6 Luna: used it very generously, most of the time I spent on researching.
 
 ## `General notes`
 * There's an extra field called consumptionData which wasn't asked for in the assignment; [molecule]-consumption.png plots it.
@@ -73,16 +73,4 @@ Reads FEST XML and creates molecule product rows in MongoDB.
 
 ## `populateMoleculeWithDMP.py`
 
-Matches products to DMP data and fills maximum price and product fields.
-
-## `populateConsumptionData.py`
-
-Fetches yearly FHI consumption data and stores it in `consumptionData`.
-
-## `main.py`
-
-Runs the full pipeline and always writes the CSV and chart outputs.
-
-## `export_outputs.py`
-
-Exports Table A to CSV and creates price and consumption charts.
+Matches products to DMP
