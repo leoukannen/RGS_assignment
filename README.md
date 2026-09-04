@@ -16,8 +16,8 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 * when finished (output.csv and *.png present, 'app' container closed), run `docker compose down` or `make down`
 
 ## `Role of AI assisted development`
-* ChatGPT was used instead of google.com, to find sources and better understand chemical/molecule data and how to best search for these rather than their given 5 names.
-* GPT 5.6 Luna: used it very generously, most of the time I spent on researching.
+* ChatGPT(browser) was used instead of google.com, to find sources and better understand chemical/molecule data and how to best search for these rather than their given 5 names.
+* GPT 5.6 Luna (IDE): used it very generously, most of the time I spent on researching.
 
 ## `General notes`
 * There's an extra field called consumptionData which wasn't asked for in the assignment; [molecule]-consumption.png plots it.
@@ -42,7 +42,7 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 * There are duplicates (same product different supplier), but because I did not proceed to actually retrieve tenders (I had found OK sources for the tender data but then failed to leverage them) I did not realize that, had i treated every entry of the table `moleculeDetails` as an individual product with a set of tenders to match to, i wouldve come back with repeated tenders
 
 ## `Recommendations/what I would do next`
-* I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m, finding sources is the hardest part.
+* I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m, finding sources is the hardest part. I did find suitable sources to keep furnishing the data but failed to realize it.
 
 ## Cacheing
 * Realistically FEST is refreshed twice a month, this implementation pulls fest.xml and maximum-prices.xlsx no more than once per 24 hours. For a real implementation I would submit to notices of update for both these sources (or at the very least download fest.xml on the 1st and 15th of every month).
