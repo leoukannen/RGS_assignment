@@ -34,10 +34,12 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 * Initially was curling wikipedia to get atcCodes, before realizing FEST (https://www.dmp.no/globalassets/documents/om-oss/distribusjon-av-legemiddeldata/fest/festfiler/fest251.zip) is a much better source for those. This is not very visible in the git log because I had at some point attempted to upload a large file (fest.xml) and I had to get aggressive with the git history.
 
 ## `Skipped`
-* Procuring real tenders, real volume and real prices, because I wasn't really able to find reliable sources for them, and a large amount of time had already been spent finding those resources
+<!-- * Procuring real tenders, real volume and real prices, because I wasn't really able to find reliable sources for them, and a large amount of time had already been spent finding those resources -->
+* I did find potential sources for tenders but failed to become acquainted with them, but doffin.no, ted.europa.eu, Sykehusinnkjøp HF, I thought they did not have data I could use.
 
 ## `Duplication handling`
-* Because no sources, single or multiple, were found for the distinct steps of furnishing the data, I did not have to deal with duplicates.
+<!-- * Because no sources, single or multiple, were found for the distinct steps of furnishing the data, I did not have to deal with duplicates. -->
+* There are duplicates (same product different supplier), but because I did not proceed to actually retrieve tenders (I had found OK sources for the tender data but then failed to leverage them) I did not realize that, had i treated every entry of the table `moleculeDetails` as an individual product with a set of tenders to match to, i wouldve come back with repeated tenders
 
 ## `Recommendations/what I would do next`
 * I'd work on procuring actual notices/tenders, their lifecycles and prices, their volume in the past 12m, finding sources is the hardest part.
