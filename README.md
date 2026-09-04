@@ -20,6 +20,7 @@ Why docker: to minimize requirements on the host machine. If the host has **Dock
 * GPT 5.6 Luna (IDE): used it very generously, most of the time I spent on researching.
 
 ## `General notes`
+* Duration 5-8 hours, split between Sept 2 and Sept 4
 * There's an extra field called consumptionData which wasn't asked for in the assignment; [molecule]-consumption.png plots it.
 * Wasn't really able to procure actual tenders, actual prices, or volume in the last 12 months.
 
@@ -57,7 +58,7 @@ Defines the molecule names used by the search and enrichment pipeline.
 
 ## `defineMoleculeDetailsTable.py`
 
-Defines Table A field names and the MongoDB schema validator.
+Defines moleculeDetails table; field names and the MongoDB schema validator.
 
 ## `procureLatestFest.py`
 
