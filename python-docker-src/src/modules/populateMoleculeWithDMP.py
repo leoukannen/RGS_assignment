@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from pymongo import MongoClient
 
 from modules.defineMoleculeDetailsTable import MOLECULE_DETAILS_COLLECTION
+from modules.normalize_dates import normalize_iso_date
 
 
 DMP_WORKBOOK_PATH = Path(
@@ -127,10 +128,10 @@ def _pack_size(row: dict[str, Any]) -> str | None:
 
 def _excel_date(value: Any) -> str | None:
 	if isinstance(value, datetime):
-		return value.date().isoformat()
+		return normalize_iso_date(value)
 	if isinstance(value, (int, float)):
-		return (datetime(1899, 12, 30) + timedelta(days=value)).date().isoformat()
-	return _clean(value)
+		return normalize_iso_date(datetime(1899, 12, 30) + timedelta(days=value))
+	return normalize_iso_date(_clean(value))
 
 
 def _clean(value: Any) -> str | None:

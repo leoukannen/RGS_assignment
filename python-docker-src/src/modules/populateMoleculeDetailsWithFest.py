@@ -8,6 +8,7 @@ from pymongo import MongoClient
 
 from modules.defineMoleculeDetailsTable import MOLECULE_DETAILS_COLLECTION
 from modules.input_molecules import desired
+from modules.normalize_dates import normalize_iso_date
 
 
 FEST_XML_PATH = Path("/app/data/fest/fest.xml")
@@ -154,7 +155,7 @@ def _package_document(package: dict[str, str | None], brand: dict[str, Any]) -> 
 		"currency": "NOK",
 		"noticeType": None,
 		"status": None,
-		"publicationDate": package["market_date"],
+		"publicationDate": normalize_iso_date(package["market_date"]),
 		"contractStart": None,
 		"procedureType": None,
 		"consumptionData": [],

@@ -18,12 +18,14 @@ from modules.defineMoleculeDetailsTable import (
 	MOLECULE_DETAILS_FIELDS,
 )
 from modules.input_molecules import desired
+from modules.normalize_dates import normalize_iso_date
 
 
 OUTPUT_DIRECTORY = Path(os.getenv("OUTPUT_DIRECTORY", "/app/data/output"))
 CSV_PATH = OUTPUT_DIRECTORY / "output.csv"
 PRICE_FIELDS = ("maxPrice", "packSoldLast12m", "estimatedValue", "currency")
 ARRAY_FIELDS = ("consumptionData", "sourceDocument", "sourceUrl")
+DATE_FIELDS = {"publicationDate", "contractStart"}
 STRENGTH_PATTERN = re.compile(
 	r"(?P<amount>\d+(?:[.,]\d+)?)\s*(?P<unit>mg|g|mcg|µg|ug)\b",
 	re.IGNORECASE,
@@ -53,7 +55,9 @@ def csv_fields() -> tuple[str, ...]:
 	return leading + PRICE_FIELDS + ARRAY_FIELDS
 
 
-def csv_value(value: Any) -> Any:
+def csv_value(value: Any, field: str | None = None) -> Any:
+	if field in DATE_FIELDS:
+		value = normalize_iso_date(value)
 	if isinstance(value, (list, dict)):
 		return json.dumps(value, ensure_ascii=True, sort_keys=True)
 	return value
@@ -66,7 +70,7 @@ def write_csv(rows: list[dict[str, Any]]) -> None:
 		writer = csv.DictWriter(output, fieldnames=fields, extrasaction="ignore")
 		writer.writeheader()
 		for row in rows:
-			writer.writerow({field: csv_value(row.get(field)) for field in fields})
+			writer.writerow({field: csv_value(row.get(field), field) for field in fields})
 	print(f"Wrote {len(rows)} moleculeDetails row(s) to {CSV_PATH}")
 
 
